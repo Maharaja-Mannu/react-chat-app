@@ -7,13 +7,13 @@ const app = express()
 const port = process.env.PORT || 5000
 
 // Define paths for Express config
-const publicDirPath = path.join(__dirname, '/public')
+const publicDirPath = path.join(__dirname, 'client/build')
 
 // Setup static directory to serve
 app.use(express.static(publicDirPath))
 app.use(express.json())
 
-const httpServer = require("http").createServer(app);
+const httpServer = http.createServer(app);
 
 const io = require("socket.io")(httpServer, {
     cors: {
@@ -24,7 +24,7 @@ const io = require("socket.io")(httpServer, {
 const users = ["Bill Gates", "Elon Musk", "Jeff Bejos"]
 // home route
 app.get('/', (req, res) => {
-    res.send('Hello')
+    res.sendFile(path.join(__dirname, 'client/build', 'index.html'))
 })
 // users route
 app.get('/users', (req, res) => {
@@ -49,8 +49,6 @@ io.use((socket, next) => {
 
 io.on('connection', socket => {
     console.log(`connect: ${socket.id}`);
-    //join the "userID" room
-    socket.join(socket.id);
 
      // fetch existing users
     const users = [];
@@ -79,7 +77,7 @@ io.on('connection', socket => {
             from: socket.id,
             to,
         };
-        socket.to(to).to(socket.id).emit("private message", message);
+        socket.to(to).emit("private message", message);
     });
     
     socket.on('disconnect', async () => {

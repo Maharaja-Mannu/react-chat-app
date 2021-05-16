@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import socket from '../socket'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button';
@@ -7,53 +7,8 @@ import Col from 'react-bootstrap/esm/Col';
 import Container from 'react-bootstrap/esm/Container';
 import MessagePanel from './MessagePanel'
 
-function Chat() {
-    const [selectedUser, setSelectedUser] = useState(null)
-    const [users, setUsers] = useState([])
+function Chat({users, setUsers, selectedUser, setSelectedUser}) {
     const [textMsg, setTextMsg] = useState('')
-
-    useEffect(() => {
-        socket.on("users", (users) => {
-            users.forEach((user) => {
-                user.self = user.userID === socket.id // not good for react
-            });
-            // sort the users by username
-            let newUsers = users.sort((a, b) => {
-                if (a.username < b.username) return -1;
-                return a.username > b.username ? 1 : 0;
-            });
-            setUsers(newUsers)
-        });
-        
-        socket.on("user connected", (user) => {
-            setUsers(users => [...users, user])
-        });
-
-        socket.on("user disconnected", (id) => {
-            const newData = users.map(user => user.userID === id ? {...user, connected: false} : user)
-            setUsers(newData)
-        });
-
-        socket.on("private message", ({ content, from , to}) => {
-    
-            const newData = users.map(user => {
-                const fromSelf = socket.id === from
-                if (user.userID === (fromSelf ? to : from)){
-                    return ({ ...user, messages: [...user.messages, { content, fromSelf}], hasNewMessages: true})
-                }else {
-                    return user
-                }
-            })
-            setUsers(newData)
-        });
-
-        return () => {
-            socket.off('users');
-            socket.off('user connected');
-            socket.off('user disconnected')
-            socket.off('private message');
-        };
-    })
 
     const handleChange = (e) => {
         setTextMsg(e.target.value)
@@ -77,8 +32,7 @@ function Chat() {
     }
     
     const handleSelect = (id) => {
-        let user = users.find(user => user.userID === id)
-        setSelectedUser({ ...user})
+        setSelectedUser(users.find(user => user.userID === id))
     }
     
     return (

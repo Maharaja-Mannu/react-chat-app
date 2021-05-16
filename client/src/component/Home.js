@@ -2,11 +2,11 @@ import { useEffect, useState } from "react"
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Alert from 'react-bootstrap/Alert'
-import {useHistory} from 'react-router-dom'
+import {Link, useHistory} from 'react-router-dom'
 import socket from '../socket'
 import Container from "react-bootstrap/Container"
 
-export default function Home({setIsUsername}) {
+export default function Home({isUsername, setIsUsername}) {
     const [username, setUsername] = useState('')
     const [err, setErr] = useState('')
    
@@ -61,20 +61,26 @@ export default function Home({setIsUsername}) {
     return(
         <Container className="pt-4">
             <h2>Welcome to chit-chat app</h2>
-            <Form onSubmit={handleSubmit}>
-                {err && <Alert variant="danger">
-                        <strong>Error</strong>
-                        <p>{err}</p>
-                    </Alert>}
-                <Form.Group controlId="formBasicEmail">
-                    <Form.Label>Username</Form.Label>
-                    <Form.Control type="text" placeholder="Enter username" value={username} 
-                    onChange={handleChange} />
-                </Form.Group>
-                <Button variant="primary" type="submit">
-                    Submit
-                </Button>
-            </Form>
+            {!isUsername ? (
+
+                <Form onSubmit={handleSubmit}>
+                    {err && <Alert variant="danger">
+                            <strong>Error</strong>
+                            <p>{err}</p>
+                        </Alert>}
+                    <Form.Group controlId="formBasicEmail">
+                        <Form.Label>Username</Form.Label>
+                        <Form.Control type="text" placeholder="Enter username" value={username} 
+                        onChange={handleChange} />
+                    </Form.Group>
+                    <Button variant="primary" type="submit">
+                        Submit
+                    </Button>
+                </Form>
+
+            ): (
+                <Link to="/chat">go to chat page</Link>
+            )}
         </Container>
     )
 }
